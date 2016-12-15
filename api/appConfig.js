@@ -1,3 +1,5 @@
+'use strict';
+
 exports.setup = function (runningApp, callback) {
     runningApp.disable("x-powered-by");
     runningApp.set('view engine', 'handlebars');
@@ -11,11 +13,8 @@ exports.setup = function (runningApp, callback) {
 
     console.log(process.env.MONGODB_URI);
 
-
-
-
-
     if (typeof callback === 'function') {
         callback(runningApp);
     }
 };
+//# sourceMappingURL=appConfig.js.map

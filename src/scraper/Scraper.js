@@ -1,12 +1,14 @@
 var request = require('request');
+var fs = require('fs');
 var cheerio = require('cheerio');
 var rp = require('request-promise');
-
 
 export class Scraper {
 
     constructor() {
         this.url = 'http://db.everkinetic.com';
+        this.imagePath = './assets/exercises/images/';
+        this.mkdirSyncRecursive(this.imagePath);
 
         this.rpOptions = {
             uri: this.url,
@@ -17,25 +19,47 @@ export class Scraper {
         };
     }
 
+    crawl() {
+
+        return new Promise((resolve, reject) => {
+
+            this.getTotalPages().then((output) => {
+
+                // let totalPages = output.pages;
+                let totalPages = 1; //debug
+
+                this.getPagesExercises(totalPages)
+                    .then((output) => {
+                        resolve(output);
+                        this.getPhotos(output);
+                    })
+                    .catch((err) => {
+                        reject(err.statusCode);
+                    })
+            });
+
+        });
+
+    }
 
     getTotalPages() {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             rp(this.rpOptions)
                 .then(($) => {
                     resolve({
                         pages: Number($('.page-numbers').not('.next').last().text())
                     });
                 })
+                .catch((err) => {
+                    reject(err.statusCode);
+                })
         });
-
     }
 
     getPagesExercises(pages) {
 
         let pagePromises = [];
-
-
-        for (let i = 0; i < pages; i++) {
+        for (let i = 1; i <= pages; i++) {
             pagePromises.push(this.getExercisesForPage(i))
         }
 
@@ -43,13 +67,11 @@ export class Scraper {
             const exercisesUrls = values.reduce((a, b) => a.concat(b), []);
             return this.scrapeExercises(exercisesUrls);
         });
-
     }
-
 
     getExercisesForPage(pageNum) {
 
-        this.rpOptions.url = `${this.url}/page/${pageNum}`;
+        this.rpOptions.uri = `${this.url}/page/${pageNum}`;
 
         return new Promise((resolve, reject) => {
             rp(this.rpOptions)
@@ -60,10 +82,9 @@ export class Scraper {
                     });
                     resolve(pageExercisesUrls);
                 })
-                .catch(function () {
-                    reject()
+                .catch(function (err) {
+                    reject(err);
                 });
-
         });
 
     }
@@ -75,8 +96,8 @@ export class Scraper {
             exercisePromises.push(this.scrapeExercise(exerciseUrls[i]));
         }
 
-        return Promise.all(exercisePromises).then(values => {
-            return values;
+        return Promise.all(exercisePromises).then(exerciseObjects => {
+            return exerciseObjects;
         });
 
     }
@@ -92,8 +113,8 @@ export class Scraper {
                 .then(($) => {
                     resolve(this.grabExerciseData($));
                 })
-                .catch(function () {
-                    reject()
+                .catch(function (err) {
+                    reject(err);
                 });
         });
     }
@@ -102,9 +123,11 @@ export class Scraper {
         const exerciseObject = {};
 
         exerciseObject.title = this.getExerciseTitle($);
+        exerciseObject.slug = this.slugify(exerciseObject.title);
         exerciseObject.description = this.getExerciseDescription($);
         exerciseObject.taxonomies = this.getExerciseTaxonomies($);
         exerciseObject.steps = this.getExerciseSteps($);
+        exerciseObject.images = this.getExerciseImages($, exerciseObject);
 
         return exerciseObject;
     }
@@ -118,14 +141,25 @@ export class Scraper {
     }
 
     getExerciseTaxonomies($) {
-        const texonomies = {};
+        const taxonomies = {};
 
-        $('.exercise-taxonomies').children().each((index, element) => {
-            const splitFields = $(element).find('a').attr('href').replace(`${this.url}/`, '').split('/');
-            texonomies[splitFields[0]] = splitFields[1];
+        $('.exercise-taxonomies').find('a').each((index, element) => {
+            const splitFields = $(element).attr('href').replace(`${this.url}/`, '').split('/');
+
+            if (splitFields[0] === 'equipment') {
+                if (Array.isArray(taxonomies[splitFields[0]])) {
+                    taxonomies[splitFields[0]].push(splitFields[1]);
+                } else {
+                    taxonomies[splitFields[0]] = [splitFields[1]];
+                }
+
+            } else {
+                taxonomies[splitFields[0]] = splitFields[1];
+            }
+
         });
 
-        return texonomies;
+        return taxonomies;
     }
 
     getExerciseSteps($) {
@@ -139,5 +173,87 @@ export class Scraper {
         return steps;
     }
 
+    getExerciseImages($, exerciseObject) {
 
+        let imageUrls = [];
+
+        $('.download-exercise-images').children().eq(1).find('a').each((index, element) => {
+
+            imageUrls.push({
+                url: $(element).attr('href'),
+                filename: `${this.imagePath}${exerciseObject.slug}-${index}.png`
+            });
+
+        });
+
+        return imageUrls;
+    }
+
+    getPhotos(photos) {
+
+        let flatPhotosArray = [];
+
+        for (let i = 0; i < photos.length; i++) {
+            for (let z = 0; z < photos[i].images.length; z++) {
+                flatPhotosArray.push(photos[i].images[z]);
+            }
+        }
+
+        this.downloadPhotos(flatPhotosArray);
+    }
+
+    downloadPhotos(flatPhotosArray) {
+
+        let readFile = function (callback) {
+            if (flatPhotosArray.length > 0) {
+                let file = flatPhotosArray.shift(),
+                    uri = file.url,
+                    filename = file.filename;
+
+                request.head(uri, function (err, res, body) {
+
+                    if (err || !res) {
+                        console.log('no res', err);
+                        return;
+                    }
+
+                    if (res.headers['content-length'] === 0 || res.headers['content-type'] !== 'image/png') {
+                        console.log('no data for image', filename);
+                        return;
+                    }
+
+                    request(uri).pipe(fs.createWriteStream(filename)).on('close', () => {
+                        console.log('downloaded ' + filename);
+                        readFile(callback);
+                    });
+
+                });
+
+            } else {
+                callback();
+            }
+        };
+
+        readFile(function () {
+            console.log('reading finishes');
+        });
+    }
+
+    mkdirSyncRecursive(directory) {
+        let path = directory.replace(/\/$/, '').split('/');
+
+        for (let i = 1; i <= path.length; i++) {
+            let segment = path.slice(0, i).join('/');
+            !fs.existsSync(segment) ? fs.mkdirSync(segment) : null;
+        }
+    }
+
+    slugify(text) {
+        return text.toString().toLowerCase()
+            .replace(/\s+/g, '-')           // Replace spaces with -
+            .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+            .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+            .replace(/^-+/, '')             // Trim - from start of text
+            .replace(/-+$/, '');            // Trim - from end of text
+    }
 }

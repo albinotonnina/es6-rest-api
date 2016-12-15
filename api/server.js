@@ -1,5 +1,6 @@
-require('dotenv').config();
+"use strict";
 
+require('dotenv').config();
 
 var express = require("express");
 var path = require("path");
@@ -12,12 +13,11 @@ var mongodb = require("mongodb");
 var app = express();
 var db;
 
-
 app.disable("x-powered-by");
 app.set('view engine', 'handlebars');
 app.engine('handlebars', require('hbs').__express);
 
-app.use(function(req,res,next){
+app.use(function (req, res, next) {
     req.db = db;
     next();
 });
@@ -41,10 +41,10 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
     db = database;
     console.log("Database connection ready");
 
-
     // Initialize the app.
     var server = app.listen(process.env.PORT || 3000, function () {
         var port = server.address().port;
         console.log("App now running on port", port);
     });
 });
+//# sourceMappingURL=server.js.map

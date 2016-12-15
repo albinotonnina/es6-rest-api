@@ -4,7 +4,7 @@
   "description": "",
   "author": "",
   "license": "UNLICENSE",
-  "main": "./server.js",
+  "main": "./app/server.js",
   "repository": {
     "type": "git",
     "url": ""
@@ -18,14 +18,15 @@
     "cheerio": "latest",
     "config": "*",
     "consolidate": "^0.14.0",
+    "dotenv": "^2.0.0",
     "express": "^4.11.0",
     "glob": "^7.0.0",
     "hbs": "^4.0",
-    "lodash": "^4.3.0",
     "metalogger": "*",
-    "nodebootstrap-server": "*",
+    "mongodb": "^2.0.43",
     "request": "latest",
-    "request-promise": "^4.1.1"
+    "request-promise": "^4.1.1",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "after": "^0.8.1",
@@ -60,10 +61,10 @@
   },
   "scripts": {
     "dev": "nodemon -w src --exec \"npm run start\"",
-    "start": "./bin/start.sh",
+    "start": "node api/server.js",
     "prestart": "npm run -s build",
-    "build": "babel src -s -D -d lib --presets es2015,stage-0",
-    "predev": "babel src -s -D -d lib --presets es2015,stage-0",
+    "build": "babel src -s -D -d api --presets es2015,stage-0",
+    "predev": "babel src -s -D -d api --presets es2015,stage-0",
     "test": "mocha --bail test/ test/acceptance/",
     "pretest": "eslint src",
     "test-cov": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- --reporter dot test/ test/acceptance/",
