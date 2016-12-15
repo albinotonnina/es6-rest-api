@@ -18,6 +18,8 @@
     "config": "*",
     "consolidate": "^0.14.0",
     "express": "^4.11.0",
+    "request"    : "latest",
+    "cheerio"    : "latest",
     "glob": "^7.0.0",
     "hbs": "^4.0",
     "lodash": "^4.3.0",
