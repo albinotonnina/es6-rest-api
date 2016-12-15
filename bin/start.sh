@@ -27,7 +27,7 @@ fi
 NBS_CURR_PROJECT_PATH=$PWD
 
 if [ ! $NODE_LAUNCH_SCRIPT ]; then
-  export NODE_LAUNCH_SCRIPT="$NBS_CURR_PROJECT_PATH/server.js"
+  export NODE_LAUNCH_SCRIPT="$NBS_CURR_PROJECT_PATH/lib/server.js"
 fi
 
 if [ ! -f "$NODE_LAUNCH_SCRIPT" ]; then
@@ -72,8 +72,8 @@ if [ $NODE_ENV = 'development' ]; then
     echo "ERROR: nodemon missing. Will try to install.";
     npm install nodemon -g
   fi
-
-  nodemon -e js,coffee,jade,handlebars ${NODE_LAUNCH_SCRIPT}
+  nodemon -w src --exec \"node run start\"
+  #//nodemon -e js,coffee,jade,handlebars ${NODE_LAUNCH_SCRIPT}
 else
   node ${NODE_LAUNCH_SCRIPT}
 fi

@@ -24,8 +24,7 @@
     "hbs": "^4.0",
     "lodash": "^4.3.0",
     "metalogger": "*",
-    "nodebootstrap-server": "*",
-    "yaml": "*"
+    "nodebootstrap-server": "*"
   },
   "devDependencies": {
     "after": "^0.8.1",
@@ -36,24 +35,37 @@
     "jshint": "^2.5.x",
     "nock": "^8.0.0",
     "sinon": "^1.17.3",
-    "supertest": "^2.0.0"
+    "supertest": "^2.0.0",
+    "babel-cli": "^6.9.0",
+    "babel-core": "^6.9.0",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "eslint": "^3.1.1",
+    "nodemon": "^1.9.2"
+  },
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "parserOptions": {
+      "ecmaVersion": 7,
+      "sourceType": "module"
+    },
+    "env": {
+      "node": true
+    },
+    "rules": {
+      "no-console": 0,
+      "no-unused-vars": 1
+    }
   },
   "scripts": {
+
+    "dev": "nodemon -w src --exec \"npm run start\"",
     "start": "./bin/start.sh",
-    "dev": "./bin/dev_start.sh",
-    "docker-start": "docker-compose run -d -p 3000 app node server.js",
-    "docker-build": "docker-compose build --force-rm --no-cache --pull",
-    "docker-dev": "docker-compose up -d",
-    "docker-dev-start": "nodemon -L -e js,coffee,jade,handlebars server.js",
-    "docker-clean-up": "npm run docker-stop && npm run docker-build && npm run docker-up",
-    "docker-stop": "docker-compose down && docker-compose rm -f",
-    "docker-restart": "docker-compose restart",
-    "docker-install-package": "docker-compose run app npm install --save",
-    "docker-test": "docker-compose run app npm test",
-    "docker-test-cov": "docker-compose run app npm run test-cov",
-    "logs": "docker-compose logs",
+    "prestart": "npm run -s build",
+    "build": "babel src -s -D -d lib --presets es2015,stage-0",
+    "predev": "babel src -s -D -d lib --presets es2015,stage-0",
     "test": "mocha --bail test/ test/acceptance/",
-    "pretest": "jshint lib test",
+    "pretest": "eslint src",
     "test-cov": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- --reporter dot test/ test/acceptance/",
     "test-travis": "istanbul cover _mocha --report lcovonly -- test/ test/acceptance/"
   }
