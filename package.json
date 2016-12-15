@@ -1,5 +1,5 @@
 {
-  "name": "nodebootstrap-based-app",
+  "name": "GymBuddyAPI",
   "private": true,
   "description": "",
   "author": "",
@@ -15,16 +15,17 @@
   "dependencies": {
     "app-module-path": "^1.0.4",
     "body-parser": "^1.14.1",
+    "cheerio": "latest",
     "config": "*",
     "consolidate": "^0.14.0",
     "express": "^4.11.0",
-    "request"    : "latest",
-    "cheerio"    : "latest",
     "glob": "^7.0.0",
     "hbs": "^4.0",
     "lodash": "^4.3.0",
     "metalogger": "*",
-    "nodebootstrap-server": "*"
+    "nodebootstrap-server": "*",
+    "request": "latest",
+    "request-promise": "^4.1.1"
   },
   "devDependencies": {
     "after": "^0.8.1",
@@ -58,7 +59,6 @@
     }
   },
   "scripts": {
-
     "dev": "nodemon -w src --exec \"npm run start\"",
     "start": "./bin/start.sh",
     "prestart": "npm run -s build",
