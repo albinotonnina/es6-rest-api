@@ -1,15 +1,16 @@
 import express from 'express';
 
-export default ({config, db}) => {
+export default () => {
 
     let router = express.Router({mergeParams: true});
 
     router.get('/', function (req, res) {
 
-        const context = {};
-        context.exampleString = "Internauta";
-        const template = __dirname + '/views/homedoc';
+        const context = {
+            exampleString: 'visitor'
+        };
 
+        const template = __dirname + '/views/homedoc';
         return res.status(200).render(template, context);
 
     });

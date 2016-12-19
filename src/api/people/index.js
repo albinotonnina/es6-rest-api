@@ -1,7 +1,7 @@
 import express from 'express';
 import {ObjectID} from 'mongodb';
 
-export default ({config, db}) => {
+export default (db) => {
 
     const collection = db.collection('mycollection');
     const router = express.Router({mergeParams: true});

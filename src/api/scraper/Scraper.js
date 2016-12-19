@@ -1,7 +1,7 @@
-var request = require('request');
-var fs = require('fs');
-var cheerio = require('cheerio');
-var rp = require('request-promise');
+const request = require('request');
+const fs = require('fs');
+const cheerio = require('cheerio');
+const rp = require('request-promise');
 
 export class Scraper {
 

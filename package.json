@@ -67,9 +67,10 @@
     "prestart": "npm run -s build",
     "build": "babel src -s -D -d api --presets es2015,stage-0",
     "predev": "babel src -s -D -d api --presets es2015,stage-0",
-    "test": "mocha --bail test/ test/acceptance/",
-    "pretest": "eslint src",
-    "test-cov": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- --reporter dot test/ test/acceptance/",
-    "test-travis": "istanbul cover _mocha --report lcovonly -- test/ test/acceptance/"
+    "test": "mocha --recursive",
+    "pretest": "babel src -s -D -d api --presets es2015,stage-0",
+    "eslint": "eslint src",
+    "test-cov": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- --reporter dot test/ test/*/",
+    "test-travis": "istanbul cover _mocha --report lcovonly -- test/ test/*/"
   }
 }

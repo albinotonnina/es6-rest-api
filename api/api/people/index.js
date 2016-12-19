@@ -12,10 +12,7 @@ var _mongodb = require('mongodb');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = function (_ref) {
-    var config = _ref.config,
-        db = _ref.db;
-
+exports.default = function (db) {
 
     var collection = db.collection('mycollection');
     var router = _express2.default.Router({ mergeParams: true });

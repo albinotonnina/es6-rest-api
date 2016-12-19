@@ -1,19 +1,26 @@
-var router = require('express').Router({mergeParams: true});
+import express from 'express';
+import {ObjectID} from 'mongodb';
 
 import {Scraper} from './Scraper';
 
-module.exports = router;
+export default (db) => {
 
-router.get('/', function (req, res) {
+    const router = express.Router({mergeParams: true});
 
-    const scraper = new Scraper();
+    router.get('/', (req, res) => {
+        const scraper = new Scraper();
 
-    scraper.crawl()
-        .then((output) => {
-            res.status(200).send(JSON.stringify(output));
-        })
-        .catch((errCode)=>{
-            res.status(500).send(JSON.stringify({error: errCode}));
-        })
+        scraper.crawl()
+            .then((output) => {
+                res.status(200).send(JSON.stringify(output));
+            })
+            .catch((errCode)=>{
+                res.status(500).send(JSON.stringify({error: errCode}));
+            })
+    });
 
-});
+
+    return router;
+
+}
+
