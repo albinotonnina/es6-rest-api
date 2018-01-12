@@ -3,6 +3,8 @@
 
 # Restful API for personal fun projects
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/albinotonnina/es6-rest-api.svg)](https://greenkeeper.io/)
+
 MEAN friendly
 
 ## How to install
